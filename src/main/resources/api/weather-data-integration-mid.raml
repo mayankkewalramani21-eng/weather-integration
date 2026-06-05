@@ -1,0 +1,40 @@
+#%RAML 1.0
+title: Weather Data Integration Mid
+version : v1
+baseUri: https://dummy.com/user
+uses:
+  lib: library/library1.raml
+
+/weather:
+  type: lib.collection
+  post:
+    is:
+      - lib.missing-Error
+      - lib.server-Error
+  
+  securedBy:
+        - lib.basicAuth  
+    
+      
+    
+    
+    
+
+
+  
+
+  
+    
+    
+    
+    
+    
+    
+      
+    
+  
+    
+
+  
+
+    

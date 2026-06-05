@@ -1,0 +1,72 @@
+#%RAML 1.0 Library
+usage:
+types:
+    data1: !include ../datatype/dataType1.raml
+    data2: !include ../datatype/dataType2.raml
+
+resourceTypes:
+  collection:
+    post:
+      queryParameters:
+        cityName?: 
+          type: string
+        API key?: 
+          type: number
+        metric?:
+          type: number     
+
+      body:
+        text/plain:
+          type: data1
+          example: Ajmer, Delhi, Hyderabad
+                
+      responses:
+        200:
+           body:
+              application/json:
+                description: output contain summary result
+                type: data2
+                example: !include ../example/example2.raml
+
+traits:
+  missing-Error:
+    responses:
+      400:
+        description: request body empty
+        body:
+          application/json:
+            example:
+              message: Invalid request
+  server-Error:
+    responses:
+      500:
+        description: unexpected server error
+        body:
+          application/json:
+            example:
+              message: Server Error
+
+securitySchemes:
+  basicAuth:
+    type: Basic Authentication
+    
+                
+                                          
+
+                                            
+              
+
+
+
+                                              
+                    
+              
+              
+              
+
+
+
+
+                            
+
+                

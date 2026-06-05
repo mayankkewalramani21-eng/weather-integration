@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<flow name="weatherintegrationapiFlow" doc:id="8bd91b2c-d1be-4d4e-9184-0436a2554a8e" >
+		<logger level="INFO" doc:name="Logger" doc:id="34775828-1fdc-499f-b0c4-45061bc9b18b" message="#[payload]"/>
+		<choice doc:name="Choice" doc:id="9a7743ef-2398-4d4e-934b-d8471fae24c3" >
+			<when />
+		</choice>
+		<ee:transform doc:name="Transform Message" doc:id="c30277a8-154b-4c1a-a466-1ca3d19bef13" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<foreach doc:name="For Each" doc:id="30a76a21-9914-4a04-953a-c348cbf5b700" collection="#[payload]">
+			<try doc:name="Try" doc:id="dee579f1-57fa-4d53-8a9c-947669aca291" >
+				<set-variable value="" doc:name="Set Variable" doc:id="6b31cec9-478a-4fe8-8ca5-11872ab0604f" />
+				<http:request doc:name="Request" doc:id="02b7250b-c53a-4e65-80fc-586879461923" />
+				<ee:transform doc:name="Transform Message" doc:id="469fbd16-5123-4e4b-9f34-a2b591980964" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<choice doc:name="Choice" doc:id="99454e00-bb99-465c-a925-7df3c9cb6133" >
+					<when >
+						<db:insert doc:name="Insert" doc:id="ae3cc006-a8a7-4c6d-9455-e622c063ccbc" />
+					</when>
+				</choice>
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="405d3a75-7b00-42fa-b7ee-5f7b27629a88" >
+						<logger level="INFO" doc:name="Logger" doc:id="dabbc511-dde7-4691-9c13-c63efed7b144" />
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</foreach>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="054b92c4-89ea-45ca-98e7-92872df4d382" >
+				<logger level="INFO" doc:name="Logger" doc:id="20ba769c-9b59-48a8-968f-64cc24d624ec" />
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>
