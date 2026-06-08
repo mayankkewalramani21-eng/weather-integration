@@ -1,0 +1,3 @@
+http:
+  basePath: "/api/*"
+  timeout: "30000"

@@ -124,24 +124,6 @@ output application/json
         </error-handler>
     </flow>
     <flow name="post:\weather:text\plain:weather-data-integration-mid-config">
-        <ee:transform doc:name="Transform Message">
-            <ee:message>
-                <ee:set-payload><![CDATA[%dw 2.0
-output application/json
----
-[
-  {
-    name: "Delhi",
-    temp: 35,
-    humidity: 100
-  }, 
-  {
-    name: "Ajmer",
-    temp: 25,
-    humidity: 80
-  }
-] as Array {encoding: "UTF-8", mediaType: "application/json"}]]></ee:set-payload>
-            </ee:message>
-        </ee:transform>
+		<flow-ref doc:name="Flow Reference" doc:id="d519f589-1594-4ce8-a3f6-113fea940ef0" name="weatherintegrationapiFlow"/>
     </flow>
 </mule>
