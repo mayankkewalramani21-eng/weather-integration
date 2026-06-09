@@ -1,6 +1,6 @@
 http:
   host: "0.0.0.0"
-  port: "8082"
+  port: "8081"
   
 db:
   host: "trolley.proxy.rlwy.net"
@@ -14,7 +14,6 @@ httpRe:
   method: "GET"
   url : "https://api.openweathermap.org/data/2.5/weather"   
   
-securitykey:
-  key: "![aXl+wqoVLqBj3tNqzSlAmw==]"  
+
      
      

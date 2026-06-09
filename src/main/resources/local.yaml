@@ -1,13 +1,16 @@
 http:
   host: "0.0.0.0"
-  port: "8082"
+  port: "8081"
   
 db:
   host: "trolley.proxy.rlwy.net"
   port: "24014"
   user: "root"
   database: "railway"
-
+  password: "![mzkyjZuTBxT1GZ/vtwwIrnjJdN2dJhs63eJnuK+n5cGBRE+9ttv2GA==]"
+  
+  
 httpRe:
+  appid: "![gTDXKss3PsBHgFSfWYG8w13HxsQyhvN7G36o3IKqZ0niqGqvYBxs2A==]" 
   method: "GET"
   url : "https://api.openweathermap.org/data/2.5/weather"  

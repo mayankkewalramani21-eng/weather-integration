@@ -6,18 +6,9 @@
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
-	<db:config name="Database_Config" doc:name="Database Config" doc:id="ac66e7e3-88bf-460a-abf0-8367493e0c59" >
-		<db:my-sql-connection host="trolley.proxy.rlwy.net" port="24014" user="root" password="HoeynUItIZVsgqoQGsABeOlJwohXDxaZ" database="railway" />
-	</db:config>
-	<db:config name="Database_Config1" doc:name="Database Config" doc:id="49fadc19-c851-4e4a-b0e5-e3e002e552b5" >
-		<db:my-sql-connection host="trolley.proxy.rlwy.net" port="24014" user="root" password="HoeynUItIZVsgqoQGsABeOlJwohXDxaZ" database="railway" />
-	</db:config>
-	<db:config name="Database_Config2" doc:name="Database Config" doc:id="eb121392-c406-4b06-ab40-291425c57458" >
-		<db:my-sql-connection host="trolley.proxy.rlwy.net" port="24014" user="root" password="HoeynUItIZVsgqoQGsABeOlJwohXDxaZ" database="railway" />
-	</db:config>
 	<flow name="weatherintegrationapiFlow" doc:id="8bd91b2c-d1be-4d4e-9184-0436a2554a8e" >
-		<logger level="INFO" doc:name="Logger" doc:id="34775828-1fdc-499f-b0c4-45061bc9b18b" message="#[payload]"/>
-		<choice doc:name="Choice" doc:id="9a7743ef-2398-4d4e-934b-d8471fae24c3" >
+		<logger level="INFO" doc:name="payload test" doc:id="34775828-1fdc-499f-b0c4-45061bc9b18b" message="#[payload]"/>
+		<choice doc:name="Validating empty city name" doc:id="9a7743ef-2398-4d4e-934b-d8471fae24c3" >
 			<when expression="#[payload == null or isEmpty(payload)]">
 				<raise-error doc:name="Raise error" doc:id="b2da3fe7-85a0-456a-b026-a039259d0908" type="VALIDATION: EMPTY PAYLOAD" description="Request body cannot be null"/>
 			</when>
@@ -43,8 +34,7 @@ output application/json
 				<ee:set-variable variableName="CurrentCity" ><![CDATA[%dw 2.0
 output application/json
 ---
-{
-}]]></ee:set-variable>
+""]]></ee:set-variable>
 				<ee:set-variable variableName="hotCount" ><![CDATA[%dw 2.0
 output application/json
 ---
@@ -67,16 +57,16 @@ output application/json
 []]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
-		<set-variable value="#[sizeOf(payload)]" doc:name="Set Variable" doc:id="20a780a7-3f97-410b-95b2-e6f12a047a7f" variableName="TotalSize"/>
+		<set-variable value="#[sizeOf(payload)]" doc:name="total size" doc:id="20a780a7-3f97-410b-95b2-e6f12a047a7f" variableName="TotalSize"/>
 		<foreach doc:name="For Each" doc:id="30a76a21-9914-4a04-953a-c348cbf5b700" collection="#[payload]">
 			<try doc:name="Try" doc:id="dee579f1-57fa-4d53-8a9c-947669aca291" >
-				<set-variable value="#[payload]" doc:name="Set Variable" doc:id="6b31cec9-478a-4fe8-8ca5-11872ab0604f" variableName="CurrentCity"/>
-				<http:request doc:name="Request" doc:id="02b7250b-c53a-4e65-80fc-586879461923" url="https://api.openweathermap.org/data/2.5/weather" sendCorrelationId="ALWAYS">
+				<set-variable value="#[payload]" doc:name="current city" doc:id="6b31cec9-478a-4fe8-8ca5-11872ab0604f" variableName="CurrentCity"/>
+				<http:request doc:name="Weather API Request" doc:id="02b7250b-c53a-4e65-80fc-586879461923" url="${httpRe.url}" sendCorrelationId="ALWAYS" responseTimeout="#[10000]" method="${httpRe.method}">
 					<http:query-params ><![CDATA[#[output application/json
 ---
 {
 	q : vars.CurrentCity,
-	appid : "62925b00f5e05f589dc1e702fd713dce"	,
+	appid : Mule::p('secure::httpRe.appid')	,
 	units : "metric"
 }]]]></http:query-params>
 				</http:request>
@@ -93,7 +83,7 @@ output application/json
     weatherCategory: payload.weather.main[0],
     description: payload.weather.description[0],
     windSpeed: payload.wind.speed,
-    processedAt: now(),
+    processedAt: now() as String {format: "yyyy-MM-dd HH:mm:ss"},
     
     
     category: if(payload.main.temp > 30)"Hot"
@@ -109,10 +99,10 @@ output application/json
 		]]></ee:set-payload>
 					</ee:message>
 				</ee:transform>
-				<set-variable value="#[vars.processedCity + [payload.name]]" doc:name="Set Variable" doc:id="baf749a9-578f-4322-a387-da9dcf37e8a9" variableName="processedCity"/>
+				<set-variable value="#[vars.processedCity + [payload.name]]" doc:name="processed city" doc:id="baf749a9-578f-4322-a387-da9dcf37e8a9" variableName="processedCity"/>
 				<choice doc:name="Choice" doc:id="b5c1c1c7-59f4-4b41-9ec2-48e2cc61d1f8" >
 					<when expression='#[payload.category == "Hot"]'>
-						<db:insert doc:name="Insert" doc:id="4f8b6f0f-8e71-4b0f-b029-dd7789ff9217" config-ref="Database_Config">
+						<db:insert doc:name="Insert" doc:id="4f8b6f0f-8e71-4b0f-b029-dd7789ff9217" config-ref="Database_Config5">
 							<db:sql ><![CDATA[INSERT INTO railway.weather_hot (  city, temperature, feels_like, humidity, weather_category, description, wind_speed, temperature_label, alert,  processed_at)
 VALUES (  :city, :temperature, :feels_like, :humidity, :weather_category, :description, :wind_speed, :temperature_label, :alert,  :processed_at)]]></db:sql>
 							<db:input-parameters ><![CDATA[#[{
@@ -130,10 +120,10 @@ VALUES (  :city, :temperature, :feels_like, :humidity, :weather_category, :descr
 	           processed_at: payload.processedAt
 	           }]]]></db:input-parameters>
 						</db:insert>
-						<set-variable value="#[vars.hotCount + 1]" doc:name="Set Variable" doc:id="469e0a54-e95c-4552-a44c-3867a1b66470" variableName="hotCount"/>
+						<set-variable value="#[(vars.hotCount default 0) + 1]" doc:name="hot count" doc:id="469e0a54-e95c-4552-a44c-3867a1b66470" variableName="hotCount"/>
 					</when>
 					<when expression='#[payload.category == "Cold"]'>
-						<db:insert doc:name="Insert" doc:id="29483d20-8489-4a73-a9c4-808b06528b0a" config-ref="Database_Config1">
+						<db:insert doc:name="Insert" doc:id="29483d20-8489-4a73-a9c4-808b06528b0a" config-ref="Database_Config5">
 							<db:sql ><![CDATA[INSERT INTO railway.weather_cold (  city, temperature, feels_like, humidity, weather_category, description, wind_speed, temperature_label, alert,  processed_at)
 VALUES (  :city, :temperature, :feels_like, :humidity, :weather_category, :description, :wind_speed, :temperature_label, :alert,  :processed_at)]]></db:sql>
 							<db:input-parameters ><![CDATA[#[{
@@ -151,10 +141,10 @@ VALUES (  :city, :temperature, :feels_like, :humidity, :weather_category, :descr
 	           processed_at: payload.processedAt
 	           }]]]></db:input-parameters>
 						</db:insert>
-						<set-variable value="#[vars.coldCount + 1]" doc:name="Set Variable" doc:id="bd24aa13-d1fa-4a33-8939-e20b1c83d611" variableName="coldCount"/>
+						<set-variable value="#[(vars.coldCount default 0 )+ 1]" doc:name="cold count" doc:id="bd24aa13-d1fa-4a33-8939-e20b1c83d611" variableName="coldCount"/>
 					</when>
 					<otherwise >
-						<db:insert doc:name="Insert" doc:id="111f82a9-1cc5-4a6c-8f5c-571f4823e218" config-ref="Database_Config2">
+						<db:insert doc:name="Insert" doc:id="111f82a9-1cc5-4a6c-8f5c-571f4823e218" config-ref="Database_Config5">
 							<db:sql ><![CDATA[INSERT INTO railway.weather_normal (  city, temperature, feels_like, humidity, weather_category, description, wind_speed, temperature_label, alert,  processed_at)
 VALUES (  :city, :temperature, :feels_like, :humidity, :weather_category, :description, :wind_speed, :temperature_label, :alert,  :processed_at)]]></db:sql>
 							<db:input-parameters ><![CDATA[#[{
@@ -172,15 +162,15 @@ VALUES (  :city, :temperature, :feels_like, :humidity, :weather_category, :descr
 	           processed_at: payload.processedAt
 	           }]]]></db:input-parameters>
 						</db:insert>
-						<set-variable value="#[vars.normalCount]" doc:name="Set Variable" doc:id="6220eab6-8231-4ffb-9446-de0e55a7e9a0" variableName="normalCount"/>
+						<set-variable value="#[(vars.normalCount default 0) + 1]" doc:name="normal count" doc:id="6220eab6-8231-4ffb-9446-de0e55a7e9a0" variableName="normalCount"/>
 					</otherwise>
 				</choice>
-				<set-variable value="#[vars.SuccessCount + 1]" doc:name="Set Variable" doc:id="98d50335-33ba-4115-9d65-8432a3657b01" variableName="SuccessCount"/>
+				<set-variable value="#[vars.SuccessCount + 1]" doc:name="success count" doc:id="98d50335-33ba-4115-9d65-8432a3657b01" variableName="SuccessCount"/>
 				<error-handler >
 					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="405d3a75-7b00-42fa-b7ee-5f7b27629a88" type="HTTP:NOT_FOUND">
-						<logger level="WARN" doc:name="Logger" doc:id="dabbc511-dde7-4691-9c13-c63efed7b144" message='#[write(&#10;{&#10;  city: vars.currentCity,&#10;  errorType: error.errorType,&#10;  message: error.description&#10;},&#10;"application/json")]'/>
-						<set-variable value="#[vars.FailureCount  + 1]" doc:name="Set Variable" doc:id="ba185ed2-d5cc-44ad-b231-ece3d373a997" variableName="FailureCount"/>
-						<set-variable value="#[vars.failedCity + [vars.CurrentCity]]" doc:name="Set Variable" doc:id="fcd6f59e-6285-450b-ac01-6ac02144ecd0" variableName="failedCity"/>
+						<logger level="WARN" doc:name="warning" doc:id="dabbc511-dde7-4691-9c13-c63efed7b144" message='#[write(&#10;{&#10;  city: vars.currentCity,&#10;  errorType: error.errorType,&#10;  message: error.description,&#10;  correlationId: correlationId&#10;},&#10;"application/json")]'/>
+						<set-variable value="#[vars.FailureCount  + 1]" doc:name="failure count" doc:id="ba185ed2-d5cc-44ad-b231-ece3d373a997" variableName="FailureCount"/>
+						<set-variable value="#[vars.failedCity + [vars.CurrentCity]]" doc:name="failed city name" doc:id="fcd6f59e-6285-450b-ac01-6ac02144ecd0" variableName="failedCity"/>
 					</on-error-continue>
 				</error-handler>
 			</try>
@@ -214,7 +204,7 @@ output application/json
 		</ee:transform>
 		<error-handler >
 			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="054b92c4-89ea-45ca-98e7-92872df4d382" type="ANY">
-				<logger level="INFO" doc:name="Logger" doc:id="20ba769c-9b59-48a8-968f-64cc24d624ec" message='#[{&#10;	errorType: error.errorType,&#10;	cityName: vars.CurrentCity default "N/A",&#10;	timeStamp: now()&#10;}]'/>
+				<logger level="INFO" doc:name="info" doc:id="20ba769c-9b59-48a8-968f-64cc24d624ec" message='#[write(&#10;{&#10;  city: vars.currentCity default "N/A",&#10;  errorType: error.errorType,&#10;  message: error.description,&#10;  correlationId: correlationId&#10;},&#10;"application/json")]'/>
 			</on-error-propagate>
 		</error-handler>
 	</flow>
