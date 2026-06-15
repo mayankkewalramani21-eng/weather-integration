@@ -2,13 +2,13 @@
 output application/json
 ---
 {
-    city: payload.name,
-    temperature: payload.main.temp,
-    feelsLike: payload.main.feels_like,
-    humidity: payload.main.humidity,
-    weatherCategory: payload.weather.main[0],
-    description: payload.weather.description[0],
-    windSpeed: payload.wind.speed,
+    city: payload.name default "Unknown",
+    temperature: payload.main.temp default 0,
+    feelsLike: payload.main.feels_like default 0,
+    humidity: payload.main.humidity default 0,
+    weatherCategory: payload.weather.main[0] default 0,
+    description: payload.weather.description[0] default "No description",
+    windSpeed: payload.wind.speed default "Unknown",
     processedAt:  now() as String {format: "yyyy-MM-dd'T'HH:mm:ss"}  ,
     recordedAt:  (payload.dt default 0) 
             as Number 
