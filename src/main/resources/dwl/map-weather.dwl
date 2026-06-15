@@ -10,8 +10,11 @@ output application/json
     description: payload.weather.description[0],
     windSpeed: payload.wind.speed,
     processedAt:  now() as String {format: "yyyy-MM-dd'T'HH:mm:ss"}  ,
-    recordedAt: payload.dt,
-    
+    recordedAt:  (payload.dt default 0) 
+            as Number 
+            as DateTime 
+            >> |+05:30| 
+            as String {format: "yyyy-MM-dd HH:mm:ss"},
     temperatureLabel: if(payload.main.temp > 30)"Hot"
     else if(payload.main.temp < 10)"Cold" else "Normal",
     

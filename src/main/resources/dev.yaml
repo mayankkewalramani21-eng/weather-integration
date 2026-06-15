@@ -7,10 +7,10 @@ db:
   port: "24014"
   user: "root"
   database: "railway"
-  password: "![mzkyjZuTBxT1GZ/vtwwIrnjJdN2dJhs63eJnuK+n5cGBRE+9ttv2GA==]"
+  password: "![tqhylWtcXuIswl0384VAYFZvCp/Nf0WPu671mSvRXoykzfUnWVx6EYoTboHaWzhs]"
    
 httpRe:
-  appid: "![gTDXKss3PsBHgFSfWYG8w13HxsQyhvN7G36o3IKqZ0niqGqvYBxs2A==]"   
+  appid: "![Qs0e2sc89hfZl+rjjrG0O1mdTw3KdoOnULkCK8Moh5+cEEwdDxSzKs6rfFUGh1HX]"   
   method: "GET"
   url : "https://api.openweathermap.org/data/2.5/weather"   
   

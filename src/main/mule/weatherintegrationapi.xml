@@ -79,7 +79,7 @@ output application/json
 					<when expression='#[payload.temperatureLabel == "Hot"]'>
 						<db:insert doc:name="Insert" doc:id="4f8b6f0f-8e71-4b0f-b029-dd7789ff9217" config-ref="Database_Config5">
 							<db:sql ><![CDATA[INSERT INTO railway.weather_hot (  city, temperature, feels_like, humidity, weather_category, description, wind_speed, temperature_label, alert,  processed_at, recorded_at)
-VALUES (  :city, :temperature, :feels_like, :humidity, :weather_category, :description, :wind_speed, :temperature_label, :alert,  :processed_at, FROM_UNIXTIME(:recorded_at))]]></db:sql>
+VALUES (  :city, :temperature, :feels_like, :humidity, :weather_category, :description, :wind_speed, :temperature_label, :alert,  :processed_at, :recorded_at)]]></db:sql>
 							<db:input-parameters ><![CDATA[#[{
 	
 	 city: payload.city,
@@ -101,7 +101,7 @@ VALUES (  :city, :temperature, :feels_like, :humidity, :weather_category, :descr
 					<when expression='#[payload.temperatureLabel == "Cold"]'>
 						<db:insert doc:name="Insert" doc:id="29483d20-8489-4a73-a9c4-808b06528b0a" config-ref="Database_Config5">
 							<db:sql ><![CDATA[INSERT INTO railway.weather_cold (  city, temperature, feels_like, humidity, weather_category, description, wind_speed, temperature_label, alert,  processed_at, recorded_at)
-VALUES (  :city, :temperature, :feels_like, :humidity, :weather_category, :description, :wind_speed, :temperature_label, :alert,  :processed_at, FROM_UNIXTIME(:recorded_at))]]></db:sql>
+VALUES (  :city, :temperature, :feels_like, :humidity, :weather_category, :description, :wind_speed, :temperature_label, :alert,  :processed_at, :recorded_at)]]></db:sql>
 							<db:input-parameters ><![CDATA[#[{
 	
 	 city: payload.city,
@@ -123,7 +123,7 @@ VALUES (  :city, :temperature, :feels_like, :humidity, :weather_category, :descr
 					<otherwise >
 						<db:insert doc:name="Insert" doc:id="111f82a9-1cc5-4a6c-8f5c-571f4823e218" config-ref="Database_Config5">
 							<db:sql ><![CDATA[INSERT INTO railway.weather_normal (  city, temperature, feels_like, humidity, weather_category, description, wind_speed, temperature_label, alert,  processed_at, recorded_at)
-VALUES (  :city, :temperature, :feels_like, :humidity, :weather_category, :description, :wind_speed, :temperature_label, :alert,  :processed_at, FROM_UNIXTIME(:recorded_at))]]></db:sql>
+VALUES (  :city, :temperature, :feels_like, :humidity, :weather_category, :description, :wind_speed, :temperature_label, :alert,  :processed_at, :recorded_at)]]></db:sql>
 							<db:input-parameters ><![CDATA[#[{
 	
 	 city: payload.city,
@@ -150,6 +150,9 @@ VALUES (  :city, :temperature, :feels_like, :humidity, :weather_category, :descr
 						<logger level="WARN" doc:name="warning" doc:id="dabbc511-dde7-4691-9c13-c63efed7b144" message='#[write(&#10;{&#10;  city: vars.CurrentCity,&#10;  errorType: error.errorType,&#10;  message: error.description,&#10;  correlationId: correlationId&#10;},&#10;"application/json")]'/>
 						<set-variable value="#[vars.FailureCount  + 1]" doc:name="failure count" doc:id="ba185ed2-d5cc-44ad-b231-ece3d373a997" variableName="FailureCount"/>
 						<set-variable value="#[vars.failedCity + [vars.CurrentCity]]" doc:name="failed city name" doc:id="fcd6f59e-6285-450b-ac01-6ac02144ecd0" variableName="failedCity"/>
+					</on-error-continue>
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="7829c0bc-f5e1-4779-a7d0-5b4ca44f473f" type="ANY">
+						<logger level="INFO" doc:name="Logger" doc:id="372b4bba-10c6-47a4-85fc-05c9ab84492d" message="#[payload]"/>
 					</on-error-continue>
 				</error-handler>
 			</try>

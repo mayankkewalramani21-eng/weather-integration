@@ -16,7 +16,6 @@ http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/m
 	<configuration-properties doc:name="Configuration properties" doc:id="7e067845-f417-4772-b951-645cdd0c80a3" file="common.yaml" />
 	<configuration-properties doc:name="Configuration properties" doc:id="dc319335-4300-4ac2-adfd-fc3dce5330e0" file="${mule.env}.yaml" />
 	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="0e266567-95c1-4402-a3b3-d22727a047ec" file="${mule.env}.yaml" key="${mule.key}">
-		<secure-properties:encrypt algorithm="Blowfish" />
 	</secure-properties:config>
-	<api-gateway:autodiscovery apiId="20957188" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="a71ed55c-c608-4561-9439-babe56fc3301" flowRef="weather-data-integration-mid-main"/>
+	<api-gateway:autodiscovery apiId="${api.id}" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="a71ed55c-c608-4561-9439-babe56fc3301" flowRef="weather-data-integration-mid-main"/>
 </mule>
