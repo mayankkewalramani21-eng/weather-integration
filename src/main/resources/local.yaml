@@ -1,7 +1,3 @@
-http:
-  host: "0.0.0.0"
-  port: "8081"
-  
 db:
   host: "trolley.proxy.rlwy.net"
   port: "24014"
@@ -14,3 +10,4 @@ httpRe:
   appid: "![Qs0e2sc89hfZl+rjjrG0O1mdTw3KdoOnULkCK8Moh5+cEEwdDxSzKs6rfFUGh1HX]" 
   method: "GET"
   url : "https://api.openweathermap.org/data/2.5/weather"  
+  units: "metric"

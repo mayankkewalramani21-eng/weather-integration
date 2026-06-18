@@ -57,15 +57,17 @@ output application/json
 			<try doc:name="Try" doc:id="dee579f1-57fa-4d53-8a9c-947669aca291" >
 				<set-variable value="#[payload]" doc:name="current city" doc:id="6b31cec9-478a-4fe8-8ca5-11872ab0604f" variableName="CurrentCity"/>
 				<logger level="INFO" doc:name="input details" doc:id="b616abed-6960-4468-b80d-cc8a913ba44d" message="#[payload]"/>
-				<http:request doc:name="Weather API Request" doc:id="02b7250b-c53a-4e65-80fc-586879461923" url="${httpRe.url}" sendCorrelationId="ALWAYS" responseTimeout="#[10000]" method="${httpRe.method}">
-					<http:query-params ><![CDATA[#[output application/json
+				<until-successful maxRetries="3" doc:name="Until Successful" doc:id="805119cb-c14c-46bc-b565-bb6616790a7a" millisBetweenRetries="2000">
+					<http:request doc:name="Weather API Request" doc:id="02b7250b-c53a-4e65-80fc-586879461923" url="${httpRe.url}" sendCorrelationId="ALWAYS" responseTimeout="#[10000]" method="${httpRe.method}">
+					<http:query-params><![CDATA[#[output application/json
 ---
 {
 	q : vars.CurrentCity,
 	appid : Mule::p('secure::httpRe.appid')	,
-	units : "metric"
+	units : Mule::p('httpRe.units')
 }]]]></http:query-params>
 				</http:request>
+				</until-successful>
 				<logger level="INFO" doc:name="output of API" doc:id="79769072-c2ee-4d1d-b0ef-0a58db613030" message="#[payload]"/>
 				<ee:transform doc:name="Transform Message" doc:id="469fbd16-5123-4e4b-9f34-a2b591980964" >
 					<ee:message >
@@ -78,8 +80,10 @@ output application/json
 				<choice doc:name="Choice" doc:id="b5c1c1c7-59f4-4b41-9ec2-48e2cc61d1f8" >
 					<when expression='#[payload.temperatureLabel == "Hot"]'>
 						<db:insert doc:name="Insert" doc:id="4f8b6f0f-8e71-4b0f-b029-dd7789ff9217" config-ref="Database_Config5">
+							<reconnect />
 							<db:sql ><![CDATA[INSERT INTO railway.weather_hot (  city, temperature, feels_like, humidity, weather_category, description, wind_speed, temperature_label, alert,  processed_at, recorded_at)
 VALUES (  :city, :temperature, :feels_like, :humidity, :weather_category, :description, :wind_speed, :temperature_label, :alert,  :processed_at, :recorded_at)]]></db:sql>
+							<db:parameter-types />
 							<db:input-parameters ><![CDATA[#[{
 	
 	 city: payload.city,
@@ -100,6 +104,7 @@ VALUES (  :city, :temperature, :feels_like, :humidity, :weather_category, :descr
 					</when>
 					<when expression='#[payload.temperatureLabel == "Cold"]'>
 						<db:insert doc:name="Insert" doc:id="29483d20-8489-4a73-a9c4-808b06528b0a" config-ref="Database_Config5">
+							<reconnect />
 							<db:sql ><![CDATA[INSERT INTO railway.weather_cold (  city, temperature, feels_like, humidity, weather_category, description, wind_speed, temperature_label, alert,  processed_at, recorded_at)
 VALUES (  :city, :temperature, :feels_like, :humidity, :weather_category, :description, :wind_speed, :temperature_label, :alert,  :processed_at, :recorded_at)]]></db:sql>
 							<db:input-parameters ><![CDATA[#[{
@@ -122,6 +127,7 @@ VALUES (  :city, :temperature, :feels_like, :humidity, :weather_category, :descr
 					</when>
 					<otherwise >
 						<db:insert doc:name="Insert" doc:id="111f82a9-1cc5-4a6c-8f5c-571f4823e218" config-ref="Database_Config5">
+							<reconnect />
 							<db:sql ><![CDATA[INSERT INTO railway.weather_normal (  city, temperature, feels_like, humidity, weather_category, description, wind_speed, temperature_label, alert,  processed_at, recorded_at)
 VALUES (  :city, :temperature, :feels_like, :humidity, :weather_category, :description, :wind_speed, :temperature_label, :alert,  :processed_at, :recorded_at)]]></db:sql>
 							<db:input-parameters ><![CDATA[#[{

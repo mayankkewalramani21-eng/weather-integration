@@ -2,8 +2,8 @@
 output application/json
 ---
 {
-		requestId : correlationId,
-		submittedAt: now(),
+		requestId: correlationId,
+		submittedAt: now() as String {format: "yyyy-MM-dd'T'HH:mm:ss.SS"},
 		summary: {
 			totalSubmitted: vars.TotalSize,
 			successful: vars.SuccessCount,
