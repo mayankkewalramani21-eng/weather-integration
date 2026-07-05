@@ -40,10 +40,6 @@ A MuleSoft integration that accepts a comma-separated list of city names, fetche
 POST /weather
 ```
 
-**Authentication**
-
-* Username: `Mulesoft`
-* Password: `Minlopro@!23`
 
 **Sample Request**
 
