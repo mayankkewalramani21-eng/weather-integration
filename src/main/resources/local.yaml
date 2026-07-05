@@ -11,3 +11,10 @@ httpRe:
   method: "GET"
   url : "https://api.openweathermap.org/data/2.5/weather"  
   units: "metric"
+  path: "/weather"
+  basePath: "/data/2.5"
+  host: "api.openweathermap.org"
+
+
+api:
+  id: "20957188"    

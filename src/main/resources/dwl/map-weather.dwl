@@ -15,6 +15,7 @@ output application/json
     >> |+00:00|
     >> |+05:30|
     as String {format: "yyyy-MM-dd HH:mm:ss"},   
+    
      temperatureLabel: if(payload.main.temp > 30)"Hot"
     else if(payload.main.temp < 10)"Cold" else "Normal",
     

@@ -17,6 +17,6 @@ output application/json
 			
 			}
 		},
-		failedCities: vars.failedCity,
-		processedCity: vars.processedCity
+		failedCities: flatten(vars.failedCity),
+		processedCity: flatten(vars.processedCity)
 }

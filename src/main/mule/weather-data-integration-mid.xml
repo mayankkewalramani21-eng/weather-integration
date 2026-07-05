@@ -121,6 +121,6 @@ output application/json
         </error-handler>
     </flow>
     <flow name="post:\weather:text\plain:weather-data-integration-mid-config">
-        <flow-ref doc:name="Flow Reference" doc:id="d519f589-1594-4ce8-a3f6-113fea940ef0" name="weatherintegrationapiFlow" />
+		<flow-ref doc:name="Flow Reference" doc:id="ebe2253f-db5a-4976-8fe0-ad8063839b81" name="weatherintegrationapiFlow"/>
     </flow>
 </mule>

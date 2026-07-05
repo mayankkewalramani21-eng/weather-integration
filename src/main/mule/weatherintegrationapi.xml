@@ -58,7 +58,7 @@ output application/json
 				<set-variable value="#[payload]" doc:name="current city" doc:id="6b31cec9-478a-4fe8-8ca5-11872ab0604f" variableName="CurrentCity"/>
 				<logger level="INFO" doc:name="input details" doc:id="b616abed-6960-4468-b80d-cc8a913ba44d" message="#[payload]"/>
 				<until-successful maxRetries="3" doc:name="Until Successful" doc:id="805119cb-c14c-46bc-b565-bb6616790a7a" millisBetweenRetries="2000">
-					<http:request doc:name="Weather API Request" doc:id="02b7250b-c53a-4e65-80fc-586879461923" url="${httpRe.url}" sendCorrelationId="ALWAYS" responseTimeout="#[10000]" method="${httpRe.method}">
+					<http:request doc:name="Weather API Request" doc:id="02b7250b-c53a-4e65-80fc-586879461923" sendCorrelationId="ALWAYS" responseTimeout="#[10000]" method="${httpRe.method}" config-ref="HTTP_Request_config" path="${httpRe.path}">
 					<http:query-params><![CDATA[#[output application/json
 ---
 {
@@ -73,18 +73,29 @@ output application/json
 					<ee:message >
 						<ee:set-payload resource="dwl/map-weather.dwl" />
 					</ee:message>
-					<ee:variables />
+					<ee:variables >
+						<ee:set-variable variableName="hotCount" ><![CDATA[%dw 2.0
+output application/json
+---
+
+	(vars.hotCount default 0)  + (if (payload.main.temp > 30) 1 else 0)
+]]></ee:set-variable>
+						<ee:set-variable variableName="coldCount" ><![CDATA[%dw 2.0
+output application/json
+---
+(vars.coldCount default 0) + (if(payload.main.temp < 10) 1 else 0)]]></ee:set-variable>
+						<ee:set-variable variableName="normalCount" ><![CDATA[%dw 2.0
+output application/json
+---
+ (vars.normalCount default 0) + (if(payload.main.temp>=10 and payload.main.temp <= 30)1 else 0)]]></ee:set-variable>
+					</ee:variables>
 				</ee:transform>
 				<set-variable value="#[vars.processedCity + [payload.city]]" doc:name="processed city" doc:id="baf749a9-578f-4322-a387-da9dcf37e8a9" variableName="processedCity"/>
 				<logger level="INFO" doc:name="data before database" doc:id="f72a82e6-4d30-41a8-b394-9060398d0935" message="#[payload]"/>
-				<choice doc:name="Choice" doc:id="b5c1c1c7-59f4-4b41-9ec2-48e2cc61d1f8" >
-					<when expression='#[payload.temperatureLabel == "Hot"]'>
-						<db:insert doc:name="Insert" doc:id="4f8b6f0f-8e71-4b0f-b029-dd7789ff9217" config-ref="Database_Config5">
-							<reconnect />
-							<db:sql ><![CDATA[INSERT INTO railway.weather_hot (  city, temperature, feels_like, humidity, weather_category, description, wind_speed, temperature_label, alert,  processed_at, recorded_at)
+				<db:insert doc:name="Insert" doc:id="0448f038-1c03-4737-b8be-9920d0af7486" config-ref="Database_Config5">
+					<db:sql ><![CDATA[INSERT INTO railway.weather_cold (  city, temperature, feels_like, humidity, weather_category, description, wind_speed, temperature_label, alert,  processed_at, recorded_at)
 VALUES (  :city, :temperature, :feels_like, :humidity, :weather_category, :description, :wind_speed, :temperature_label, :alert,  :processed_at, :recorded_at)]]></db:sql>
-							<db:parameter-types />
-							<db:input-parameters ><![CDATA[#[{
+					<db:input-parameters ><![CDATA[#[{
 	
 	 city: payload.city,
 	  temperature: payload.temperature,
@@ -99,56 +110,7 @@ VALUES (  :city, :temperature, :feels_like, :humidity, :weather_category, :descr
 	           processed_at: payload.processedAt,
 	           recorded_at: payload.recordedAt,
 	           }]]]></db:input-parameters>
-						</db:insert>
-						<set-variable value="#[(vars.hotCount default 0) + 1]" doc:name="hot count" doc:id="469e0a54-e95c-4552-a44c-3867a1b66470" variableName="hotCount"/>
-					</when>
-					<when expression='#[payload.temperatureLabel == "Cold"]'>
-						<db:insert doc:name="Insert" doc:id="29483d20-8489-4a73-a9c4-808b06528b0a" config-ref="Database_Config5">
-							<reconnect />
-							<db:sql ><![CDATA[INSERT INTO railway.weather_cold (  city, temperature, feels_like, humidity, weather_category, description, wind_speed, temperature_label, alert,  processed_at, recorded_at)
-VALUES (  :city, :temperature, :feels_like, :humidity, :weather_category, :description, :wind_speed, :temperature_label, :alert,  :processed_at, :recorded_at)]]></db:sql>
-							<db:input-parameters ><![CDATA[#[{
-	
-	 city: payload.city,
-	  temperature: payload.temperature,
-	  feels_like: payload.feelsLike,
-	    humidity: payload.humidity,
-	     weather_category: payload.weatherCategory,
-	      description: payload.description,
-	       wind_speed: payload.windSpeed,
-	        temperature_label: payload.temperatureLabel,
-	         alert: payload.alert,
-	          
-	           processed_at: payload.processedAt,
-	           recorded_at: payload.recordedAt,
-	           }]]]></db:input-parameters>
-						</db:insert>
-						<set-variable value="#[(vars.coldCount default 0 )+ 1]" doc:name="cold count" doc:id="bd24aa13-d1fa-4a33-8939-e20b1c83d611" variableName="coldCount"/>
-					</when>
-					<otherwise >
-						<db:insert doc:name="Insert" doc:id="111f82a9-1cc5-4a6c-8f5c-571f4823e218" config-ref="Database_Config5">
-							<reconnect />
-							<db:sql ><![CDATA[INSERT INTO railway.weather_normal (  city, temperature, feels_like, humidity, weather_category, description, wind_speed, temperature_label, alert,  processed_at, recorded_at)
-VALUES (  :city, :temperature, :feels_like, :humidity, :weather_category, :description, :wind_speed, :temperature_label, :alert,  :processed_at, :recorded_at)]]></db:sql>
-							<db:input-parameters ><![CDATA[#[{
-	
-	 city: payload.city,
-	  temperature: payload.temperature,
-	  feels_like: payload.feelsLike,
-	    humidity: payload.humidity,
-	     weather_category: payload.weatherCategory,
-	      description: payload.description,
-	       wind_speed: payload.windSpeed,
-	        temperature_label: payload.temperatureLabel,
-	         alert: payload.alert,
-	          
-	           processed_at: payload.processedAt,
-	           recorded_at: payload.recordedAt,
-	           }]]]></db:input-parameters>
-						</db:insert>
-						<set-variable value="#[(vars.normalCount default 0) + 1]" doc:name="normal count" doc:id="6220eab6-8231-4ffb-9446-de0e55a7e9a0" variableName="normalCount"/>
-					</otherwise>
-				</choice>
+				</db:insert>
 				<logger level="INFO" doc:name="output from database" doc:id="85347c83-eefe-4e0f-b3ba-5e690b45a8dd" message="#[payload]"/>
 				<set-variable value="#[vars.SuccessCount + 1]" doc:name="success count" doc:id="98d50335-33ba-4115-9d65-8432a3657b01" variableName="SuccessCount"/>
 				<error-handler >
@@ -159,6 +121,8 @@ VALUES (  :city, :temperature, :feels_like, :humidity, :weather_category, :descr
 					</on-error-continue>
 					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="7829c0bc-f5e1-4779-a7d0-5b4ca44f473f" type="ANY">
 						<logger level="INFO" doc:name="Logger" doc:id="372b4bba-10c6-47a4-85fc-05c9ab84492d" message="#[payload]"/>
+						<set-variable value="#[vars.FailureCount  + 1]" doc:name="failure count" doc:id="04996b0a-2c68-4c1d-8028-8670e120de37" variableName="FailureCount"/>
+						<set-variable value="#[vars.failedCity + [vars.CurrentCity]]" doc:name="failed city name" doc:id="98a20284-635b-439b-b250-f644ded05090" variableName="failedCity"/>
 					</on-error-continue>
 				</error-handler>
 			</try>

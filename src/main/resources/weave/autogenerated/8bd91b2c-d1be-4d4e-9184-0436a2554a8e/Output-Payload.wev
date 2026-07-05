@@ -1,4 +1,0 @@
-%dw 2.0
-
-type auto_8bd91b2c_d1be_4d4e_9184_0436a2554a8e_Output_Payload = Array<{  temp?: Number,   name?: String,   humidity?: Number,   _?: Any}> {"description": "output contain summary result"}
-
